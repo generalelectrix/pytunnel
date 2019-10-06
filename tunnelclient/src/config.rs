@@ -1,5 +1,5 @@
 //! Loading and parsing client configurations.
-use draw::{Transform, TransformDirection, Orientation};
+use draw::{Orientation, Transform, TransformDirection};
 use log::Level;
 use std::cmp;
 use std::error::Error;
@@ -110,7 +110,7 @@ impl ClientConfig {
             cfg[name].as_bool().ok_or(missing)
         };
 
-        let orientation = if flag("Is projector underhung?", "Bad underhung flip flag.")? {
+        let orientation = if flag("underhung", "Bad underhung flip flag.")? {
             Orientation::Underhung
         } else {
             Orientation::Overhung
