@@ -25,7 +25,7 @@ extern crate zero_configure;
 extern crate zmq;
 
 mod constants {
-    use std::f64::consts::PI;
+    pub use std::f64::consts::PI;
     pub const TWOPI: f64 = 2.0 * PI;
 }
 

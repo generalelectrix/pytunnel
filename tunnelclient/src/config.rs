@@ -1,5 +1,5 @@
 //! Loading and parsing client configurations.
-use draw::{Transform, TransformDirection};
+use draw::{Transform, TransformDirection, Orientation};
 use log::Level;
 use std::cmp;
 use std::error::Error;
@@ -37,6 +37,8 @@ pub struct ClientConfig {
     pub x_center: f64,
     /// Computed pixel y-offset of the drawing coordinate system.
     pub y_center: f64,
+    /// Projector hang orientation.
+    pub orientation: Orientation,
     /// Geometric transformation to optionally apply to the entire image.
     pub transformation: Option<Transform>,
     /// Log at debug level?  This option is ignored when running in remote mode.
@@ -55,6 +57,7 @@ impl ClientConfig {
         fullscreen: bool,
         alpha_blend: bool,
         capture_mouse: bool,
+        orientation: Orientation,
         transformation: Option<Transform>,
         log_level_debug: bool,
     ) -> ClientConfig {
@@ -75,6 +78,7 @@ impl ClientConfig {
             x_center: f64::from(x_resolution / 2),
             y_center: f64::from(y_resolution / 2),
             alpha_blend,
+            orientation,
             transformation,
             log_level_debug,
         }
@@ -106,6 +110,12 @@ impl ClientConfig {
             cfg[name].as_bool().ok_or(missing)
         };
 
+        let orientation = if flag("Is projector underhung?", "Bad underhung flip flag.")? {
+            Orientation::Underhung
+        } else {
+            Orientation::Overhung
+        };
+
         let transformation = if flag("flip_horizontal", "Bad horizontal flip flag.")? {
             Some(Transform::Flip(TransformDirection::Horizontal))
         } else {
@@ -122,6 +132,7 @@ impl ClientConfig {
             flag("fullscreen", "Bad fullscreen flag.")?,
             flag("alpha_blend", "Bad alpha blend flag.")?,
             flag("capture_mouse", "Bad mouse capture flag.")?,
+            orientation,
             transformation,
             flag("log_level_debug", "Bad log level flag.")?,
         ))

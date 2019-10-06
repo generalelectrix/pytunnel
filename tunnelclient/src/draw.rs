@@ -1,4 +1,5 @@
 use config::ClientConfig;
+use constants::{PI, TWOPI};
 use graphics::radians::Radians;
 use graphics::triangulation::stream_quad_tri_list;
 use graphics::types::Color;
@@ -7,7 +8,12 @@ use graphics::{rectangle, CircleArc, DrawState, Graphics, Transformed};
 use piston_window::Context;
 use receive::{ArcSegment, Snapshot};
 
-use constants::TWOPI;
+/// Projector hang orientations.
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
+pub enum Orientation {
+    Overhung,
+    Underhung,
+}
 
 /// The axis along which to perform a transformation.
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
@@ -172,7 +178,14 @@ impl<G: Graphics> Draw<G> for ArcSegment {
         };
 
         let transform = {
-            let t = c.transform.trans(x, y).rot_rad(self.rot_angle * TWOPI);
+            let extra_rotation = match cfg.orientation {
+                Orientation::Overhung => 0.0,
+                Orientation::Underhung => PI,
+            };
+            let t = c
+                .transform
+                .trans(x, y)
+                .rot_rad(self.rot_angle * TWOPI + extra_rotation);
             match cfg.transformation {
                 None => t,
                 Some(Transform::Flip(TransformDirection::Horizontal)) => t.flip_h(),

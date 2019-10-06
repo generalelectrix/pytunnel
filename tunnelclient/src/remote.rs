@@ -6,7 +6,7 @@
 //! Also provide the tools needed for simple remote administration.
 
 use config::{ClientConfig, Resolution};
-use draw::{Transform, TransformDirection};
+use draw::{Transform, TransformDirection, Orientation};
 use hostname::get_hostname;
 use regex::Regex;
 use rmp_serde::decode::from_read;
@@ -267,6 +267,13 @@ where
         parse_resolution,
     );
     let fullscreen = prompt_y_n("Fullscreen");
+
+    let orientation = if prompt_y_n("Is the projector underhung?") {
+        Orientation::Underhung
+    } else {
+        Orientation::Overhung
+    };
+
     let transformation = if prompt_y_n("Flip horizontal") {
         Some(Transform::Flip(TransformDirection::Horizontal))
     } else {
@@ -302,6 +309,7 @@ where
         fullscreen,
         alpha_blend,
         capture_mouse,
+        orientation,
         transformation,
         false,
     )
